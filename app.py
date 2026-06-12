@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 
-from helpdesk_TRIO_NOMES import (
+from helpdesk_caio_marcos_karlos import (
     CapacidadeExcedidaException,
     CentralDeSupporte,
     ChamadoNaoEncontradoException,

@@ -4,10 +4,11 @@ Sistema interno de gestão de chamados desenvolvido em Python com orientação a
 
 ## Estrutura do Projeto
 
-- helpdesk_TRIO_NOMES.py - Classes de domínio, exceções e demonstração executável.
+- `helpdesk_caio_marcos_karlos.py` - Classes de domínio, exceções e demonstração executável.
 - pp.py - API Flask com todos os endpoints JSON.
 - core.py - Wrapper de compatibilidade para a implementação principal.
-- equirements.txt - Dependências da aplicação e da API.
+- 
+equirements.txt - Dependências da aplicação e da API.
 
 ---
 
@@ -27,7 +28,7 @@ pip install -r requirements.txt
 **Modo 1: Teste Visual do Domínio (Terminal)**
 Testa a lógica das classes sem ligar o servidor.
 ``bash
-python helpdesk_TRIO_NOMES.py
+python helpdesk_caio_marcos_karlos.py
 ``
 
 **Modo 2: Rodar o Servidor da API (Flask)**

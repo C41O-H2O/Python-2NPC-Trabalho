@@ -1,3 +1,3 @@
-"""Compatibilidade com a implementacao principal em helpdesk_TRIO_NOMES.py."""
+"""Compatibilidade com a implementacao principal em helpdesk_caio_marcos_karlos.py."""
 
-from helpdesk_TRIO_NOMES import *
+from helpdesk_caio_marcos_karlos import *
