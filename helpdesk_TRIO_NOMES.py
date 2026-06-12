@@ -128,6 +128,7 @@ class Tecnico:
         else:
             self.especialidades = {str(especialidades).strip().lower()}
         self.chamados_ativos = []
+        self.chamados_resolvidos = []
         self.capacidade_maxima = int(capacidade_maxima)
 
     @property
@@ -156,12 +157,33 @@ class Tecnico:
     def tem_especialidade(self, categoria):
         return str(categoria).strip().lower() in self.especialidades
 
+    def registrar_chamado_resolvido(self, numero):
+        if numero not in self.chamados_resolvidos:
+            self.chamados_resolvidos.append(numero)
+
+    def desempenho(self):
+        total_ativos = len(self.chamados_ativos)
+        total_resolvidos = len(self.chamados_resolvidos)
+        total_trabalhado = total_ativos + total_resolvidos
+        taxa_resolucao = 0.0
+        if total_trabalhado > 0:
+            taxa_resolucao = (total_resolvidos / total_trabalhado) * 100
+
+        return {
+            "id_tecnico": self.id_tecnico,
+            "nome": self.nome,
+            "total_ativos": total_ativos,
+            "total_resolvidos": total_resolvidos,
+            "taxa_resolucao": round(taxa_resolucao, 2),
+        }
+
     def to_dict(self):
         return {
             "id_tecnico": self.id_tecnico,
             "nome": self.nome,
             "especialidades": sorted(self.especialidades),
             "chamados_ativos": list(self.chamados_ativos),
+            "chamados_resolvidos": list(self.chamados_resolvidos),
             "capacidade_maxima": self.capacidade_maxima,
             "disponivel": self.disponivel,
         }
@@ -274,9 +296,18 @@ class CentralDeSupporte:
         chamado.alterar_status("resolvido", tecnico.nome)
         chamado.registrar_acao(f"Solucao registrada: {descricao_solucao}", tecnico.nome)
         tecnico.liberar_chamado(chamado.numero)
+        tecnico.registrar_chamado_resolvido(chamado.numero)
         chamado.tecnico = None
 
         return chamado
+
+    def ranking_tecnicos(self):
+        ranking = [tecnico.desempenho() for tecnico in self.tecnicos.values()]
+        return sorted(
+            ranking,
+            key=lambda item: (item["taxa_resolucao"], item["total_resolvidos"]),
+            reverse=True,
+        )
 
     def fechar_chamado(self, numero):
         chamado = self.buscar_chamado(numero)
@@ -356,7 +387,7 @@ def demonstracao():
     print(json.dumps(resultado_atribuicao, ensure_ascii=False, indent=2))
 
     chamado_resolvido_1 = central.resolver_chamado(chamados[0].numero, chamados[0].tecnico, "Acesso restabelecido")
-    chamado_resolvido_2 = central.resolver_chamado(chamados[1].numero, chamados[1].tecnico, "Monitor substituido")
+    central.resolver_chamado(chamados[1].numero, chamados[1].tecnico, "Monitor substituido")
 
     central.fechar_chamado(chamado_resolvido_1.numero)
 
@@ -370,6 +401,9 @@ def demonstracao():
 
     print("Painel operacional:")
     print(json.dumps(central.painel_operacional(), ensure_ascii=False, indent=2))
+
+    print("Ranking de tecnicos:")
+    print(json.dumps(central.ranking_tecnicos(), ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

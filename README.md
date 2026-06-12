@@ -1,62 +1,132 @@
-# HelpDesk Pro
+﻿# HelpDesk Pro
 
 Sistema interno de gestão de chamados desenvolvido em Python com orientação a objetos e exposto via API REST com Flask.
 
-## Estrutura
+## Estrutura do Projeto
 
-- `helpdesk_TRIO_NOMES.py` - classes de dominio, excecoes e demonstracao executavel.
-- `app.py` - API Flask com todos os endpoints JSON.
-- `core.py` - wrapper de compatibilidade para a implementacao principal.
-- `requirements.txt` - dependencia da API.
+- helpdesk_TRIO_NOMES.py - Classes de domínio, exceções e demonstração executável.
+- pp.py - API Flask com todos os endpoints JSON.
+- core.py - Wrapper de compatibilidade para a implementação principal.
+- equirements.txt - Dependências da aplicação e da API.
 
-## Execucao
+---
 
-Instale as dependencias:
+## 🚀 Instalação e Execução
 
-```bash
+### 1. Pré-requisitos
+- Python 3.8 ou superior instalado.
+- Ambiente Virtual (Opcional, mas recomendado).
+
+### 2. Instalar as dependências
+Navegue até a pasta do projeto e execute:
+``bash
 pip install -r requirements.txt
-```
+``
 
-Execute a demonstracao do dominio:
-
-```bash
+### 3. Modos de Execução
+**Modo 1: Teste Visual do Domínio (Terminal)**
+Testa a lógica das classes sem ligar o servidor.
+``bash
 python helpdesk_TRIO_NOMES.py
-```
+``
 
-Execute a API:
-
-```bash
+**Modo 2: Rodar o Servidor da API (Flask)**
+Inicia a aplicação web para receber requisições HTTP (Postman, REST Client, Insomnia).
+``bash
 python app.py
-```
+``
 
-## Decisao de estrutura de dados
+---
 
-Os chamados sao armazenados em um dicionario, permitindo busca por numero em tempo constante $O(1)$, mesmo com grande volume de registros.
+## 🛠️ Decisão de Estrutura de Dados
+Os chamados são armazenados internamente em um dicionário, onde a chave é o número do chamado. Isso permite uma busca em tempo constante $O(1)$, proporcionando alto desempenho mesmo com um grande volume de registros.
 
 ---
 
 ## 📚 Documentação da API
 
-A API foi desenvolvida seguindo o padrão REST e troca de dados via **JSON**.
-**URL Base Local:** `http://127.0.0.1:5000`
+A API foi desenvolvida seguindo o padrão REST. O formato de transferência de dados aceito e devolvido é exclusivamente **JSON**. 
+
+**URL Base Local:** http://127.0.0.1:5000
 
 ### 1. 📊 Painel (Dashboard)
-- **`GET /painel`**: Retorna as estatísticas da central (chamados em atendimento, em atraso, técnicos disponíveis e top clientes).
+Retorna estatísticas operacionais da central (chamados em atendimento, chamados em atraso, técnicos disponíveis e top clientes).
+
+- **GET /painel**
+- **Corpo:** *Nenhum*
 
 ### 2. 👨‍💻 Técnicos
-- **`POST /tecnicos`**: Registra um novo técnico. *(Body: `nome` (str), `especialidades` (list), `capacidade_maxima` (int, opcional))*
-- **`GET /tecnicos`**: Lista os técnicos. *(Query param opcional: `?disponivel=true|false`)*
-- **`GET /tecnicos/ranking`**: Lista os técnicos ordenados pela quantidade de chamados resolvidos.
+
+#### Registrar Técnico
+- **POST /tecnicos**
+- **Corpo (JSON):**
+``json
+{
+  "nome": "João Carlos",
+  "especialidades": ["Hardware", "Redes"],
+  "capacidade_maxima": 5
+}
+``
+
+#### Listar Técnicos
+- **GET /tecnicos**
+- **Parâmetros Opcionais (URL):** ?disponivel=true ou ?disponivel=false
+
+#### Ranking de Técnicos
+- **GET /tecnicos/ranking**
+- **Corpo:** *Nenhum* (Retorna técnicos ordenados por número de chamados resolvidos).
 
 ### 3. 🎫 Chamados
-- **`POST /chamados`**: Abre a ocorrência. *(Body: `titulo` (str), `descricao` (str), `cliente` (str), `prioridade` (str - baixa, media, alta, critica))*
-- **`GET /chamados`**: Lista chamados. *(Query params opcionais: `?status={status}` ou `?numero={id}`)*
-- **`GET /chamados/<numero>`**: Busca exata de um chamado pelo seu ID.
-- **`GET /chamados/em-atraso`**: Lista chamados cujo tempo decorrido ultrapassou o SLA estipulado pela prioridade.
+
+#### Abrir Chamado
+- **POST /chamados**
+- **Corpo (JSON):**
+``json
+{
+  "titulo": "Problema no Wi-Fi",
+  "descricao": "A internet cai de hora em hora",
+  "cliente": "Empresa XPTO",
+  "prioridade": "alta"
+}
+``
+*(Prioridades aceitas: baixa, media, alta, critica)*
+
+#### Listar Chamados
+- **GET /chamados**
+- **Parâmetros Opcionais (URL):** ?status=aberto ou ?numero=1
+
+#### Buscar Chamado por ID
+- **GET /chamados/<numero>**
+*(Exemplo: /chamados/1)*
+
+#### Listar Chamados em Atraso (Violação de SLA)
+- **GET /chamados/em-atraso**
 
 ### 4. 🔀 Andamento e Finalização
-- **`PATCH /chamados/<numero>/status`**: Altera manualmente o status. *(Body: `novo_status` (str), `responsavel` (str))*
-- **`PATCH /chamados/<numero>/resolver`**: Resolve um chamado. *(Body: `id_tecnico` (int), `descricao_solucao` (str))*
 
-### 5. 🤖 Ativação do Sistema Automático
-- **`POST /atribuicao/automatica`**: Varre chamados com status `aberto` e tenta designá-los dinamicamente aos técnicos com vagas e especialidades requeridas.
+#### Alterar Status Manualmente
+- **PATCH /chamados/<numero>/status**
+- **Corpo (JSON):**
+``json
+{
+  "novo_status": "em_analise",
+  "responsavel": "Admin_Sistema"
+}
+``
+
+#### Resolver um Chamado
+- **PATCH /chamados/<numero>/resolver**
+- **Corpo (JSON):**
+``json
+{
+  "id_tecnico": 1,
+  "descricao_solucao": "Cabo de rede foi substituido."
+}
+``
+
+### 5. 🤖 Sistema Automático
+
+#### Atribuição Dinâmica
+- **POST /atribuicao/automatica**
+- **Corpo:** *Nenhum*
+- **Descrição:** O sistema analisa todos os chamados com status berto e tenta designá-los automaticamente aos técnicos disponíveis, cruzando os dados das especialidades e verificando se não ultrapassam sua capacidade_maxima.

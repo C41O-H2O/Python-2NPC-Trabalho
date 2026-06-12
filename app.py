@@ -161,6 +161,11 @@ def listar_tecnicos():
         return resposta_erro(str(erro), 400)
 
 
+@app.route("/tecnicos/ranking", methods=["GET"])
+def ranking_tecnicos():
+    return jsonify(central.ranking_tecnicos()), 200
+
+
 @app.route("/atribuicao/automatica", methods=["POST"])
 def atribuicao_automatica():
     resultado = central.atribuicao_automatica()
